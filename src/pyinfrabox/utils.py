@@ -4,6 +4,9 @@ from builtins import int, range, str
 from past.builtins import basestring
 
 from pyinfrabox import ValidationError
+from pyinfraboxutils import get_logger
+
+logger = get_logger('uuid')
 
 def check_text(t, path, allowEmpty=False):
     if not isinstance(t, basestring):
@@ -52,9 +55,9 @@ def check_color(d, path):
     if d not in ("red", "green", "blue", "yellow", "orange", "white", "black", "grey"):
         raise ValidationError(path, "not a valid value")
 
-def validate_uuid4(uuid_string):
+def validate_uuid(uuid_string):
     try:
-        val = uuid.UUID(uuid_string, version=4)
+        val = uuid.UUID(uuid_string)
     except ValueError:
         return False
 

@@ -5,7 +5,7 @@ from flask import g, abort, request
 from flask_restplus import Resource, fields
 
 from pyinfraboxutils import get_logger
-from pyinfrabox.utils import validate_uuid4
+from pyinfrabox.utils import validate_uuid
 from pyinfraboxutils.ibrestplus import api
 from pyinfraboxutils.ibflask import auth_required, OK
 
@@ -240,7 +240,7 @@ class Project(Resource):
 
     @auth_required(['user'], check_project_owner=True)
     def delete(self, project_id):
-        if not validate_uuid4(project_id):
+        if not validate_uuid(project_id):
             abort(400, "Invalid project uuid.")
 
         project = g.db.execute_one_dict("""

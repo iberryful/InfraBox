@@ -4,9 +4,11 @@ import datetime
 import paramiko
 
 import psycopg2
+import uuid
 
 from pyinfraboxutils import get_logger, get_env
 from pyinfraboxutils.db import connect_db
+from pyinfraboxutils.leader import is_active
 
 logger = get_logger("gerrit")
 
@@ -21,6 +23,8 @@ def main():
     gerrit_hostname = get_env('INFRABOX_GERRIT_HOSTNAME')
     gerrit_username = get_env('INFRABOX_GERRIT_USERNAME')
     gerrit_key_filename = get_env('INFRABOX_GERRIT_KEY_FILENAME')
+
+    cluster_name = get_env('INFRABOX_CLUSTER_NAME')
 
     conn = connect_db()
     logger.info("Connected to db")
@@ -44,9 +48,21 @@ def main():
                 event = json.loads(line)
 
                 if event['type'] in ("patchset-created", "draft-published", "change-merged"):
-                    logger.info(json.dumps(event, indent=4))
+                    logger.debug(json.dumps(event, indent=4))
+                    if not is_active(conn, cluster_name):
+                        logger.info("cluster is inactive or disabled, skipping")
+                        break
                     handle_patchset_created(conn, event)
                     break
+            except psycopg2.IntegrityError:
+                logger.info('duplicated key, skip this commit')
+                try:
+                    conn.close()
+                except:
+                    pass
+                conn = connect_db()
+                logger.info("reconnected to db")
+                break
             except psycopg2.OperationalError:
                 try:
                     conn.close()
@@ -58,7 +74,7 @@ def main():
 
 
 def handle_patchset_created_project(conn, event, project_id, project_name):
-    if event['patchSet']['isDraft']:
+    if 'isDraft' in event['patchSet'] and event['patchSet']['isDraft']:
         return
 
     c = conn.cursor()
@@ -78,7 +94,7 @@ def handle_patchset_created_project(conn, event, project_id, project_name):
     commit = result
 
     if not commit:
-        url = event['change']['url'] + "/" + event['patchSet']['number']
+        url = event['change']['url'] + "/" + str(event['patchSet']['number'])
         c = conn.cursor()
         c.execute('''
             INSERT INTO "commit" (
@@ -180,8 +196,10 @@ def handle_patchset_created_project(conn, event, project_id, project_name):
     c.execute('''INSERT INTO job (id, state, build_id, type, name,
                                  project_id, build_only, dockerfile,
                                  cpu, memory, repo, env_var, cluster_name)
-                VALUES (gen_random_uuid(), 'queued', %s, 'create_job_matrix', 'Create Jobs',
-                        %s, false, '', 1, 1024, %s, %s, null)''', (build_id,
+                VALUES (%s, 'queued', %s, 'create_job_matrix', 'Create Jobs',
+                        %s, false, '', 1, 1024, %s, %s, null)''', (
+                                                                   str(uuid.uuid5(uuid.NAMESPACE_DNS, (event['type'] + sha).encode('utf-8'))),
+                                                                   build_id,
                                                                    project_id,
                                                                    json.dumps(git_repo),
                                                                    json.dumps(env_vars)))

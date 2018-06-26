@@ -15,7 +15,7 @@ from flask_restplus import Resource
 
 from werkzeug.datastructures import FileStorage
 
-from pyinfrabox.utils import validate_uuid4
+from pyinfrabox.utils import validate_uuid
 from pyinfrabox.badge import validate_badge
 from pyinfrabox.markup import validate_markup
 from pyinfrabox.testresult import validate_result
@@ -572,7 +572,7 @@ class OutputParent(Resource):
     def get(self, parent_job_id):
         job_id = g.token['job']['id']
 
-        if not validate_uuid4(parent_job_id):
+        if not validate_uuid(parent_job_id):
             abort(400, "Invalid uuid")
 
         filename = request.args.get('filename', None)
