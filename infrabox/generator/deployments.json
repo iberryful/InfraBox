@@ -333,17 +333,6 @@
                     "cpu": 1,
                     "memory": 1024
                 }
-            },
-            "deployments": [
-                {
-                    "type": "docker-registry",
-                    "host": "quay.io/infrabox",
-                    "repository": "checker",
-                    "username": "infrabox+infrabox_ci",
-                    "password": {
-                        "$secret": "QUAY_PASSWORD"
-                    }
-                }
-            ]
+            }
         }]
 }
