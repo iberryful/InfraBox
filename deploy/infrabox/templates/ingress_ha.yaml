@@ -18,7 +18,7 @@ metadata:
 spec:
     rules:
     -
-        host: {{ .Values.ha.entry_host }}
+        host: {{ .Values.ha.global_host }}
         http:
             paths:
             -
@@ -56,7 +56,7 @@ spec:
 
     tls:
         - hosts:
-            - {{ .Values.ha.entry_host }}
+            - {{ .Values.ha.global_host }}
           secretName: infrabox-ha-tls-certs
 {{ end }}
 {{ end }}
