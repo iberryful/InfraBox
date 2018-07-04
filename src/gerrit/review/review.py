@@ -6,7 +6,7 @@ import time
 import psycopg2
 import paramiko
 
-from pyinfraboxutils import get_logger, get_env
+from pyinfraboxutils import get_logger, get_env, get_root_url
 from pyinfraboxutils.db import connect_db
 from pyinfraboxutils.leader import elect_leader, is_leader, is_active
 
@@ -136,19 +136,7 @@ def handle_job_update(conn, event):
     gerrit_username = get_env('INFRABOX_GERRIT_USERNAME')
     gerrit_key_filename = get_env('INFRABOX_GERRIT_KEY_FILENAME')
 
-    ha_mode = get_env('INFRABOX_HA_ENABLED') == 'true'
-
-    if ha_mode:
-        dashboard_url = get_env('INFRABOX_HA_ROOT_URL')
-    else:
-        c = conn.cursor()
-        c.execute('''
-                SELECT root_url
-                FROM cluster
-                WHERE name = 'master'
-            ''')
-        dashboard_url = c.fetchone()[0]
-        c.close()
+    dashboard_url = get_root_url('global')
 
     client = paramiko.SSHClient()
     client.load_system_host_keys()

@@ -40,9 +40,9 @@ ha:
 
     active_timeout: 60
 
-    entry_host: #<required if use ha>
+    global_host: #<required if use ha>
 
-    entry_port: 443
+    global_port: 443
 
 cluster:
     # Unique name of all clusters which are connected to the

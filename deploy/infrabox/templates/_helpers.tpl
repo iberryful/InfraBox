@@ -415,11 +415,11 @@ https://{{- required "host is required" .Values.host -}}:{{- .Values.port -}}
 {{ end }}
 {{ end }}
 
-{{- define "ha_root_url" -}}
-{{- if eq 443.0 .Values.ha.entry_port -}}
-https://{{- .Values.ha.entry_host -}}
+{{- define "ha_global_url" -}}
+{{- if eq 443.0 .Values.ha.global_port -}}
+https://{{- .Values.ha.global_host -}}
 {{- else -}}
-https://{{- .Values.ha.entry_host -}}:{{- .Values.ha.entry_port -}}
+https://{{- .Values.ha.global_host -}}:{{- .Values.ha.global_port -}}
 {{- end -}}
 {{- end -}}
 
@@ -432,8 +432,8 @@ https://{{- .Values.ha.entry_host -}}:{{- .Values.ha.entry_port -}}
     value: {{ .Values.ha.check_interval | quote }}
 -   name: INFRABOX_HA_ACTIVE_TIMEOUT
     value: {{ .Values.ha.active_timeout | quote }}
--   name: INFRABOX_HA_ROOT_URL
-    value: {{ template "ha_root_url" . }}
+-   name: INFRABOX_HA_GLOBAL_URL
+    value: {{ template "ha_global_url" . }}
 {{ end }}
 {{ end }}
 
