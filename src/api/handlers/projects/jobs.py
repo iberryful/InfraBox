@@ -85,6 +85,7 @@ class Jobs(Resource):
                 j.created_at::text as job_created_at,
                 j.message as job_message,
                 j.definition as job_definition,
+                j.cluster_name as cluster_name, 
                 j.node_name as job_node_name,
                 -- pull_request
                 pr.title as pull_request_title,
