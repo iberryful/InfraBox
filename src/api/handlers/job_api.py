@@ -26,6 +26,7 @@ from pyinfraboxutils.ibrestplus import api
 from pyinfraboxutils.ibflask import job_token_required, app
 from pyinfraboxutils.storage import storage
 from pyinfraboxutils.secrets import decrypt_secret
+from pyinfraboxutils import get_root_url
 
 ns = api.namespace('api/job',
                    description='Job runtime related operations')
@@ -328,11 +329,7 @@ class Job(Resource):
                 else:
                     abort(400, "Unknown deployment type")
 
-        root_url = g.db.execute_one('''
-            SELECT root_url
-            FROM cluster
-            WHERE name = 'master'
-        ''', [])[0]
+        root_url = get_root_url("global")
 
         # Default env vars
         project_name = urllib.quote_plus(data['project']['name']).replace('+', '%20')
