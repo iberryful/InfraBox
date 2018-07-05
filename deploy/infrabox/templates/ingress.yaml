@@ -85,6 +85,7 @@ spec:
                 backend:
                     serviceName: infrabox-static
                     servicePort: 80
+            {{ end }}
             {{ if .Values.ha.enabled }}
                 {{ include "ing_root" . | indent 12 }}
             {{ else if eq .Values.cluster.name "master" }}

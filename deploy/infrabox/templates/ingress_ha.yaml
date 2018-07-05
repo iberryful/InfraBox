@@ -42,6 +42,13 @@ spec:
                 backend:
                     serviceName: infrabox-api
                     servicePort: 8080
+            {{ end }
+            {{ if .Values.monitoring.enabled }}
+            -
+                path: /grafana
+                backend:
+                    serviceName: infrabox-grafana
+                    servicePort: 80
             {{ end }}
             -
                 path: /v2
