@@ -187,12 +187,12 @@ class Job(object):
                     self.console.collect('Failed to download file (%s), retrying' % r.status_code, show=True)
                     time.sleep(10)
                     continue
-
+                self.console.collect('Downloading %s, done. writing to local' % path, show=True)
                 with open(path, 'wb') as  f:
                     for chunk in r.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-
+                self.console.collect('Downloading %s, done. writing done' % path, show=True)
             except Exception as e:
                 message = str(e)
                 self.console.collect('Failed to download file (%s), retrying' % message, show=True)
